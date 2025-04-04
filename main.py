@@ -12,13 +12,10 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return "Hello, World!"
+    return open("index.html").read()
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
-@app.route('/')
-def home():
-     return open("index.html").read()  # ← وهذا تحته مباشرةً
 
 def run():
     app.run(host='0.0.0.0', port=8080)
