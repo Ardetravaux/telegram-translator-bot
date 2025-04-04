@@ -1,5 +1,4 @@
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+
 from flask import Flask
 from threading import Thread
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
@@ -58,15 +57,16 @@ def start(update, context):
 # توكن البوت من BotFather
 TELEGRAM_TOKEN = "7565032765:AAEL25UxEfr7I62mSiH7FF1lt7GUl5iICz0"
 
-# إعداد البوت
-updater = Updater(TELEGRAM_TOKEN, use_context=True)
-dispatcher = updater.dispatcher
+if __name__ == '__main__':
+    # إعداد البوت
+    updater = Updater(TELEGRAM_TOKEN, use_context=True)
+    dispatcher = updater.dispatcher
 
-# ربط الأوامر والرسائل
-dispatcher.add_handler(CommandHandler("start", start))
-dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, handle_message))
+    # ربط الأوامر والرسائل
+    dispatcher.add_handler(CommandHandler("start", start))
+    dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, handle_message))
 
-# تشغيل الخادم والبوت
-keep_alive()
-updater.start_polling()
-updater.idle()
+    # تشغيل الخادم والبوت
+    keep_alive()
+    updater.start_polling()
+    updater.idle()
