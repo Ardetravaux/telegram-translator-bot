@@ -12,8 +12,8 @@ def home():
     return open("index.html").read()
 
 # Use environment variables for API keys
-DEEPL_AUTH_KEY = os.environ.get('DEEPL_AUTH_KEY')
-TELEGRAM_TOKEN = os.environ.get('TELEGRAM_TOKEN')
+DEEPL_AUTH_KEY = os.environ.get('837d1d6a-b369-41a9-9e28-9bc1cebcb990:fx')
+TELEGRAM_TOKEN = os.environ.get('7565032765:AAEL25UxEfr7I62mSiH7FF1lt7GUl5iICz0')
 
 translator = deepl.Translator(DEEPL_AUTH_KEY)
 
