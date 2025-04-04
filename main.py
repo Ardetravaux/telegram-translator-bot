@@ -1,17 +1,16 @@
-```python
+
 from flask import Flask, render_template, request
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 import deepl
 from langdetect import detect
 import os
+import threading
 
 app = Flask('app')
 
 @app.route('/')
 def home():
     return render_template('index.html')
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)  # Change this line
 
 # Use environment variables for API keys
 DEEPL_AUTH_KEY = os.environ.get('DEEPL_AUTH_KEY')
@@ -56,12 +55,14 @@ def init_telegram_bot():
     updater.start_polling()
     return updater
 
-if __name__ == '__main__':
-    # Initialize Telegram bot
+def run_telegram_bot():
     bot_updater = init_telegram_bot()
-    
-    # Run Flask app
-    app.run(host='0.0.0.0', port=5000)
-    
-    # Keep the bot running
     bot_updater.idle()
+
+if __name__ == '__main__':
+    # Start Telegram bot in a separate thread
+    telegram_thread = threading.Thread(target=run_telegram_bot)
+    telegram_thread.start()
+    
+    # Run Flask app in the main thread
+    app.run(host='0.0.0.0', port=5000)
