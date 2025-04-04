@@ -1,25 +1,18 @@
+
 from flask import Flask
 from threading import Thread
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 import deepl
 from langdetect import detect
 
-# إعداد خادم Flask للإبقاء على Replit نشطًا
-app = Flask('')
-from flask import Flask
-
 app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return from flask import Flask
+    return open("index.html").read()
 
-app = Flask(__name__)
-
-# Your existing routes and logic here...
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)open("index.html").read()
+def run():
+    app.run(host='0.0.0.0', port=5000)
 
 def keep_alive():
     t = Thread(target=run)
