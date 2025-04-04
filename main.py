@@ -1,15 +1,17 @@
-
-from flask import Flask
+```python
+from flask import Flask, render_template, request
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 import deepl
 from langdetect import detect
 import os
 
-app = Flask(__name__)
+app = Flask('app')
 
 @app.route('/')
 def home():
-    return open("index.html").read()
+    return render_template('index.html')
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)  # Change this line
 
 # Use environment variables for API keys
 DEEPL_AUTH_KEY = os.environ.get('DEEPL_AUTH_KEY')
