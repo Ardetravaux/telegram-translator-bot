@@ -60,9 +60,10 @@ def run_telegram_bot():
     bot_updater.idle()
 
 if __name__ == '__main__':
-    # Start Telegram bot in a separate thread
-    telegram_thread = threading.Thread(target=run_telegram_bot)
-    telegram_thread.start()
+    # Run Flask app in a separate thread
+    flask_thread = threading.Thread(target=lambda: app.run(host='0.0.0.0', port=5000))
+    flask_thread.daemon = True
+    flask_thread.start()
     
-    # Run Flask app in the main thread
-    app.run(host='0.0.0.0', port=5000)
+    # Run Telegram bot in the main thread
+    run_telegram_bot()
