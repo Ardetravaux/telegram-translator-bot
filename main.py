@@ -12,13 +12,14 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return open("index.html").read()
+    return from flask import Flask
+
+app = Flask(__name__)
+
+# Your existing routes and logic here...
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
-
-def run():
-    app.run(host='0.0.0.0', port=8080)
+    app.run(host='0.0.0.0', port=5000)open("index.html").read()
 
 def keep_alive():
     t = Thread(target=run)
