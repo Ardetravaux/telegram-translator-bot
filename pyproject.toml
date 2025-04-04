@@ -6,7 +6,10 @@ authors = ["Your Name <you@example.com>"]
 requires-python = ">=3.11"
 dependencies = [
     "jax>=0.5.0",
+    "langdetect>=1.0.9",
     "matplotlib>=3.10.0",
     "numpy>=2.2.3",
     "pandas>=2.2.3",
+    "requests>=2.32.3",
+    "telegram>=0.0.1",
 ]
