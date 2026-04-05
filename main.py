@@ -36,7 +36,7 @@ def translate(text, target_lang):
 # =========================
 import re
 
-def split_text(text, max_length=1000):
+def split_text(text, max_length=2000):
     lines = text.split("\n")
 
     parts = []
