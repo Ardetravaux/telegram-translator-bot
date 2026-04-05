@@ -1,6 +1,6 @@
-```python
 from flask import Flask, render_template
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from telegram import Update
+from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes
 import deepl
 from langdetect import detect
 import os
@@ -62,7 +62,7 @@ def translate(text, target_lang):
 # =========================
 # 📩 التعامل مع الرسائل
 # =========================
-def handle_message(update, context):
+async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = update.message.text.strip()
 
     if not text:
@@ -81,7 +81,7 @@ def handle_message(update, context):
     elif lang == 'ru':
         target = 'ar'
     else:
-        update.message.reply_text("أرسل نصًا بالعربية أو الروسية فقط.")
+        await update.message.reply_text("أرسل نصًا بالعربية أو الروسية فقط.")
         return
 
     original_parts = split_text(text)
@@ -91,19 +91,19 @@ def handle_message(update, context):
         translated_parts = split_text(translated)
 
         for t_part in translated_parts:
-            context.bot.send_message(
+            await context.bot.send_message(
                 chat_id=update.effective_chat.id,
                 text=t_part,
                 reply_to_message_id=update.message.message_id
             )
-            time.sleep(0.4)
+            await asyncio.sleep(0.4)
 
 
 # =========================
 # ▶️ أمر /start
 # =========================
-def start(update, context):
-    update.message.reply_text(
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text(
         "أرسل لي نصًا بالعربية أو الروسية وسأترجمه لك.\n"
         "Пришли мне текст на арабском или русском языке, и я его переведу.\n"
         "https://t.me/Jamaatalmuslimin"
@@ -113,20 +113,15 @@ def start(update, context):
 # =========================
 # 🤖 تشغيل البوت
 # =========================
-def init_telegram_bot():
-    updater = Updater(TELEGRAM_TOKEN, use_context=True)
-    dispatcher = updater.dispatcher
+import asyncio
 
-    dispatcher.add_handler(CommandHandler("start", start))
-    dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, handle_message))
+async def run_telegram_bot():
+    app_bot = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
 
-    updater.start_polling()
-    return updater
+    app_bot.add_handler(CommandHandler("start", start))
+    app_bot.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
-
-def run_telegram_bot():
-    bot_updater = init_telegram_bot()
-    bot_updater.idle()
+    await app_bot.run_polling()
 
 
 # =========================
@@ -137,4 +132,4 @@ if __name__ == '__main__':
     flask_thread.daemon = True
     flask_thread.start()
 
-    run_telegram_bot()
+    asyncio.run(run_telegram_bot())
