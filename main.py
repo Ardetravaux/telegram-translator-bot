@@ -2,8 +2,6 @@ from flask import Flask, render_template
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from langdetect import detect
 from googletrans import Translator
-from dotenv import load_dotenv
-load_dotenv()
 import os
 import threading
 
@@ -20,6 +18,8 @@ def home():
 TELEGRAM_TOKEN = os.environ.get('TELEGRAM_TOKEN')
 
 translator = Translator()
+
+import os
 
 LOG_GROUP_ID = int(os.environ.get("LOG_GROUP_ID"))
 
