@@ -1,4 +1,4 @@
-python-telegram-bot==13.15
-deepl
-langdetect
 flask
+python-telegram-bot==13.15
+langdetect
+googletrans==4.0.0-rc1
