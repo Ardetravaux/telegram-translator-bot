@@ -41,18 +41,18 @@ def split_text(text, max_length=4000):
 
 
 # =========================
-# 🧠 تجميع الرسائل
+# 🧠 تجميع الرسائل بدون تكرار
 # =========================
-user_buffers = {}
-user_timers = {}
+user_data = {}
 
-def process_user_text(user_id, context):
-    text = user_buffers.get(user_id, "").strip()
+def process_user_text(user_id, context, timestamp):
+    time.sleep(1.2)
 
-    if not text:
+    # إذا كان كاين تحديث جديد، نوقف
+    if user_id not in user_data or user_data[user_id]["time"] != timestamp:
         return
 
-    user_buffers[user_id] = ""
+    text = user_data[user_id]["text"]
 
     try:
         lang = detect(text)
@@ -75,6 +75,9 @@ def process_user_text(user_id, context):
         context.bot.send_message(chat_id=user_id, text=part)
         time.sleep(0.4)
 
+    # مسح بعد المعالجة
+    del user_data[user_id]
+
 
 # =========================
 # 📩 استقبال الرسائل
@@ -83,18 +86,15 @@ def handle_message(update, context):
     user_id = update.message.chat_id
     text = update.message.text
 
-    if user_id not in user_buffers:
-        user_buffers[user_id] = ""
+    if user_id not in user_data:
+        user_data[user_id] = {"text": "", "time": 0}
 
-    user_buffers[user_id] += " " + text
+    user_data[user_id]["text"] += " " + text
+    user_data[user_id]["time"] = time.time()
 
-    # إعادة ضبط المؤقت
-    if user_id in user_timers:
-        user_timers[user_id].cancel()
+    timestamp = user_data[user_id]["time"]
 
-    timer = threading.Timer(1.2, process_user_text, args=(user_id, context))
-    user_timers[user_id] = timer
-    timer.start()
+    threading.Thread(target=process_user_text, args=(user_id, context, timestamp)).start()
 
 
 # =========================
@@ -102,8 +102,7 @@ def handle_message(update, context):
 # =========================
 def start(update, context):
     update.message.reply_text(
-        "أرسل لي نصًا طويلًا أو قصيرًا وسأترجمه كاملًا.\n"
-        "يمكنك إرسال عدة رسائل متتالية وسيتم جمعها."
+        "أرسل نصًا طويلًا أو عدة رسائل، وسأجمعها وأترجمها كاملة بدون تكرار."
     )
 
 
