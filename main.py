@@ -35,9 +35,24 @@ def translate(text, target_lang):
 # =========================
 # ✂️ تقسيم النص
 # =========================
-def split_text(text, max_length=3000):
-    return [text[i:i + max_length] for i in range(0, len(text), max_length)]
+def split_text(text, max_length=1500):
+    sentences = text.split(". ")
+    parts = []
+    current = ""
 
+    for sentence in sentences:
+        sentence += ". "
+
+        if len(current) + len(sentence) <= max_length:
+            current += sentence
+        else:
+            parts.append(current.strip())
+            current = sentence
+
+    if current:
+        parts.append(current.strip())
+
+    return parts
 
 # =========================
 # 🧠 تجميع الرسائل بدون تكرار
