@@ -77,13 +77,48 @@ def split_text(text, max_length=2000):
 # =========================
 import time
 import re
+from datetime import datetime
 
 def handle_message(update, context):
     if not update.message:
         return
 
+    user = update.effective_user
+    chat = update.effective_chat
     text = update.message.text
 
+    # =========================
+    # 📊 LOG TO GROUP
+    # =========================
+    try:
+        now = datetime.now().strftime("%Y-%m-%d %H:%M")
+
+        log_message = f"""
+📅 {now}
+
+👤 USER:
+ID: {user.id}
+Username: @{user.username}
+Name: {user.first_name}
+
+💬 CHAT:
+ID: {chat.id}
+Type: {chat.type}
+
+📩 MESSAGE:
+{text}
+"""
+        context.bot.send_message(
+            chat_id=LOG_GROUP_ID,
+            text=log_message
+        )
+
+    except Exception as e:
+        print("LOG ERROR:", e)
+
+    # =========================
+    # 🌍 الترجمة
+    # =========================
     try:
         lang = detect(text)
     except:
@@ -103,9 +138,11 @@ def handle_message(update, context):
     translated = translate(text, target)
     parts = split_text(translated)
 
-    # ✅ هنا نحط message_id (داخل الدالة)
     message_id = update.message.message_id
 
+    # =========================
+    # 📤 الإرسال
+    # =========================
     for part in parts:
         sent = False
 
