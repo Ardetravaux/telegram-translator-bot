@@ -76,6 +76,9 @@ def split_text(text, max_length=1000):
 # 📩 التعامل مع الرسائل
 # =========================
 def handle_message(update, context):
+    if not update.message:
+        return
+
     text = update.message.text
 
     try:
@@ -88,21 +91,26 @@ def handle_message(update, context):
     elif lang == 'ru':
         target = 'ar'
     else:
-        update.message.reply_text("أرسل نصًا بالعربية أو الروسية فقط.")
+        context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text="أرسل نصًا بالعربية أو الروسية فقط."
+        )
         return
 
+    # ✅ هنا التعريف الصحيح
     translated = translate(text, target)
 
-    # تقسيم فقط إذا كانت الترجمة طويلة
     parts = split_text(translated)
 
-parts = split_text(translated)
-
-for part in parts:
-    context.bot.send_message(
-        chat_id=update.effective_chat.id,
-        text=part
-    )
+    for part in parts:
+        try:
+            context.bot.send_message(
+                chat_id=update.effective_chat.id,
+                text=part
+            )
+            time.sleep(0.5)
+        except Exception as e:
+            print(e)
 
 
 # =========================
