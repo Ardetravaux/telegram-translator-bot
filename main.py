@@ -105,6 +105,9 @@ def handle_message(update, context):
     # ✅ تقسيم
     parts = split_text(translated)
 
+import time
+import re
+
 for part in parts:
     sent = False
 
@@ -115,12 +118,21 @@ for part in parts:
                 text=part
             )
             sent = True
-            time.sleep(1.2)
+            time.sleep(1.5)
 
         except Exception as e:
-            print("Retrying...", e)
-            time.sleep(3)
+            error_text = str(e)
+            print("ERROR:", error_text)
 
+            # 🔥 إذا كان flood control
+            match = re.search(r"Retry in (\d+)", error_text)
+
+            if match:
+                wait_time = int(match.group(1))
+                print(f"Waiting {wait_time} seconds...")
+                time.sleep(wait_time)
+            else:
+                time.sleep(5)
 
 # =========================
 # ▶️ /start
