@@ -37,18 +37,28 @@ def translate(text, target_lang):
 import re
 
 def split_text(text, max_length=3500):
-    # تقسيم إلى جمل
     sentences = re.split(r'(?<=[.!?])\s+|\n+', text)
 
     parts = []
     current = ""
 
     for sentence in sentences:
-        if len(current) + len(sentence) <= max_length:
+        sentence = sentence.strip()
+
+        # إذا الرسالة الحالية فارغة
+        if not current:
+            current = sentence
+            continue
+
+        # إذا مازال داخل الحد
+        if len(current) + len(sentence) + 1 <= max_length:
             current += " " + sentence
         else:
+            # 🔥 هنا الفرق:
+            # كنزيد الجملة كاملة حتى لو تجاوزنا الحد قليلاً
+            current += " " + sentence
             parts.append(current.strip())
-            current = sentence
+            current = ""
 
     if current:
         parts.append(current.strip())
