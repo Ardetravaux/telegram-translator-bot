@@ -75,6 +75,8 @@ def split_text(text, max_length=2000):
 # =========================
 # 📩 التعامل مع الرسائل
 # =========================
+import time
+
 def handle_message(update, context):
     if not update.message:
         return
@@ -97,23 +99,23 @@ def handle_message(update, context):
         )
         return
 
-    # ✅ هنا التعريف الصحيح
+    # ✅ ترجمة
     translated = translate(text, target)
 
+    # ✅ تقسيم
     parts = split_text(translated)
 
-import time
-
-for part in parts:
-    try:
-        context.bot.send_message(
-            chat_id=update.effective_chat.id,
-            text=part
-        )
-        time.sleep(1.2)  # 🔥 مهم جدا
-    except Exception as e:
-        print("ERROR:", e)
-        time.sleep(3)  # 🔥 يعاود يحاول بعد pause
+    # ✅ إرسال مع anti-flood
+    for part in parts:
+        try:
+            context.bot.send_message(
+                chat_id=update.effective_chat.id,
+                text=part
+            )
+            time.sleep(1.2)
+        except Exception as e:
+            print("ERROR:", e)
+            time.sleep(3)
 
 
 # =========================
