@@ -45,10 +45,13 @@ def split_text(text, max_length=4000):
 # =========================
 user_data = {}
 
+def split_text(text, max_length=3000):
+    return [text[i:i + max_length] for i in range(0, len(text), max_length)]
+
+
 def process_user_text(user_id, context, timestamp):
     time.sleep(1.2)
 
-    # إذا كان كاين تحديث جديد، نوقف
     if user_id not in user_data or user_data[user_id]["time"] != timestamp:
         return
 
@@ -67,15 +70,19 @@ def process_user_text(user_id, context, timestamp):
         context.bot.send_message(chat_id=user_id, text="أرسل نصًا بالعربية أو الروسية فقط.")
         return
 
-    translated = translate(text, target)
+    # 🔥 تقسيم النص قبل الترجمة (حل 413)
+    text_parts = split_text(text, 3000)
 
-    parts = split_text(translated)
+    for part in text_parts:
+        translated = translate(part, target)
 
-    for part in parts:
-        context.bot.send_message(chat_id=user_id, text=part)
-        time.sleep(0.4)
+        # تقسيم الترجمة كذلك
+        translated_parts = split_text(translated, 4000)
 
-    # مسح بعد المعالجة
+        for t in translated_parts:
+            context.bot.send_message(chat_id=user_id, text=t)
+            time.sleep(0.4)
+
     del user_data[user_id]
 
 
