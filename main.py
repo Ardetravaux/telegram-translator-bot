@@ -36,53 +36,39 @@ def translate(text, target_lang):
 # =========================
 import re
 
-def split_text(text, max_length=2500):
-    # تقسيم النص إلى فقرات حسب السطر
-    paragraphs = text.split("\n")
+def split_text(text, max_length=1000):
+    lines = text.split("\n")
 
     parts = []
     current = ""
 
-    for para in paragraphs:
-        para = para.strip()
-
-        if not para:
-            continue
-
-        # إذا الفقرة قصيرة (غالبا عنوان)
-        is_title = len(para) < 80
-
-        # إذا الفقرة وحدها كبيرة بزاف → نقسمها لجمل
-        if len(para) > max_length:
-            sentences = re.split(r'(?<=[.!?])\s+', para)
-
-            for sentence in sentences:
-                if len(current) + len(sentence) + 1 <= max_length:
-                    current += " " + sentence
-                else:
-                    parts.append(current.strip())
-                    current = sentence
-
-            continue
-
-        # 🔥 معالجة العناوين
-        if is_title and current:
-            parts.append(current.strip())
-            current = para
-            continue
-
-        # الحالة العادية
-        if len(current) + len(para) + 1 <= max_length:
-            if current:
-                current += "\n" + para
-            else:
-                current = para
+    for line in lines:
+        # نحافظ على السطر كما هو
+        if current:
+            candidate = current + "\n" + line
         else:
-            parts.append(current.strip())
-            current = para
+            candidate = line
+
+        # إذا داخل الحد
+        if len(candidate) <= max_length:
+            current = candidate
+        else:
+            # 🔥 نحترم نهاية الجملة
+            if not current:
+                # إذا السطر وحدو طويل → نقسمو لجمل
+                sentences = re.split(r'(?<=[.!?])\s+', line)
+                for s in sentences:
+                    if len(current) + len(s) + 1 <= max_length:
+                        current += " " + s if current else s
+                    else:
+                        parts.append(current)
+                        current = s
+            else:
+                parts.append(current)
+                current = line
 
     if current:
-        parts.append(current.strip())
+        parts.append(current)
 
     return parts
 
