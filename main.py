@@ -97,15 +97,7 @@ def handle_message(update, context):
     parts = split_text(translated)
 
   for part in parts:
-    try:
-        context.bot.send_message(
-            chat_id=update.effective_chat.id,
-            text=part
-        )
-        time.sleep(0.5)  # مهم فـ groups
-    except Exception as e:
-        print("Error sending message:", e)
-        break
+    update.message.reply_text(part)
 
 
 # =========================
