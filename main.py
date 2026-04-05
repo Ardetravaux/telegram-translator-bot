@@ -103,30 +103,32 @@ def handle_message(update, context):
     translated = translate(text, target)
     parts = split_text(translated)
 
-    for part in parts:
-        sent = False
+message_id = update.message.message_id
 
-        while not sent:
-            try:
-                context.bot.send_message(
-                    chat_id=update.effective_chat.id,
-                    text=part
-                )
-                sent = True
-                time.sleep(1.5)
+for part in parts:
+    sent = False
 
-            except Exception as e:
-                error_text = str(e)
-                print("ERROR:", error_text)
+    while not sent:
+        try:
+            context.bot.send_message(
+                chat_id=update.effective_chat.id,
+                text=part,
+                reply_to_message_id=message_id  # 🔥 الربط
+            )
+            sent = True
+            time.sleep(1.5)
 
-                match = re.search(r"Retry in (\d+)", error_text)
+        except Exception as e:
+            error_text = str(e)
+            print("ERROR:", error_text)
 
-                if match:
-                    wait_time = int(match.group(1))
-                    print(f"Waiting {wait_time} seconds...")
-                    time.sleep(wait_time)
-                else:
-                    time.sleep(5)
+            match = re.search(r"Retry in (\d+)", error_text)
+
+            if match:
+                wait_time = int(match.group(1))
+                time.sleep(wait_time)
+            else:
+                time.sleep(5)
                     
 # =========================
 # ▶️ /start
