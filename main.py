@@ -105,16 +105,20 @@ def handle_message(update, context):
     # ✅ تقسيم
     parts = split_text(translated)
 
-    # ✅ إرسال مع anti-flood
-    for part in parts:
+for part in parts:
+    sent = False
+
+    while not sent:
         try:
             context.bot.send_message(
                 chat_id=update.effective_chat.id,
                 text=part
             )
+            sent = True
             time.sleep(1.2)
+
         except Exception as e:
-            print("ERROR:", e)
+            print("Retrying...", e)
             time.sleep(3)
 
 
