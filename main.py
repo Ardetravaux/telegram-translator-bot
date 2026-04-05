@@ -36,35 +36,55 @@ def translate(text, target_lang):
 # =========================
 import re
 
-def split_text(text, max_length=3500):
-    sentences = re.split(r'(?<=[.!?])\s+|\n+', text)
+def split_text(text, max_length=2500):
+    # تقسيم النص إلى فقرات حسب السطر
+    paragraphs = text.split("\n")
 
     parts = []
     current = ""
 
-    for sentence in sentences:
-        sentence = sentence.strip()
+    for para in paragraphs:
+        para = para.strip()
 
-        # إذا الرسالة الحالية فارغة
-        if not current:
-            current = sentence
+        if not para:
             continue
 
-        # إذا مازال داخل الحد
-        if len(current) + len(sentence) + 1 <= max_length:
-            current += " " + sentence
-        else:
-            # 🔥 هنا الفرق:
-            # كنزيد الجملة كاملة حتى لو تجاوزنا الحد قليلاً
-            current += " " + sentence
+        # إذا الفقرة قصيرة (غالبا عنوان)
+        is_title = len(para) < 80
+
+        # إذا الفقرة وحدها كبيرة بزاف → نقسمها لجمل
+        if len(para) > max_length:
+            sentences = re.split(r'(?<=[.!?])\s+', para)
+
+            for sentence in sentences:
+                if len(current) + len(sentence) + 1 <= max_length:
+                    current += " " + sentence
+                else:
+                    parts.append(current.strip())
+                    current = sentence
+
+            continue
+
+        # 🔥 معالجة العناوين
+        if is_title and current:
             parts.append(current.strip())
-            current = ""
+            current = para
+            continue
+
+        # الحالة العادية
+        if len(current) + len(para) + 1 <= max_length:
+            if current:
+                current += "\n" + para
+            else:
+                current = para
+        else:
+            parts.append(current.strip())
+            current = para
 
     if current:
         parts.append(current.strip())
 
     return parts
-
 
 # =========================
 # 📩 التعامل مع الرسائل
