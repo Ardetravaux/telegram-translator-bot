@@ -96,8 +96,13 @@ def handle_message(update, context):
     # تقسيم فقط إذا كانت الترجمة طويلة
     parts = split_text(translated)
 
-  for part in parts:
-    update.message.reply_text(part)
+parts = split_text(translated)
+
+for part in parts:
+    context.bot.send_message(
+        chat_id=update.effective_chat.id,
+        text=part
+    )
 
 
 # =========================
