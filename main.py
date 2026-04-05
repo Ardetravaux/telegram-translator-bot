@@ -102,15 +102,18 @@ def handle_message(update, context):
 
     parts = split_text(translated)
 
-    for part in parts:
-        try:
-            context.bot.send_message(
-                chat_id=update.effective_chat.id,
-                text=part
-            )
-            time.sleep(0.5)
-        except Exception as e:
-            print(e)
+import time
+
+for part in parts:
+    try:
+        context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text=part
+        )
+        time.sleep(1.2)  # 🔥 مهم جدا
+    except Exception as e:
+        print("ERROR:", e)
+        time.sleep(3)  # 🔥 يعاود يحاول بعد pause
 
 
 # =========================
