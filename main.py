@@ -1,3 +1,4 @@
+
 from flask import Flask, render_template, request
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 import deepl
@@ -26,7 +27,6 @@ def translate(text, target_lang):
 
 def handle_message(update, context):
     text = update.message.text
-
     try:
         lang = detect(text)
     except:
@@ -42,19 +42,7 @@ def handle_message(update, context):
         return
 
     translated = translate(text, target)
-
-    # 🔥 تقسيم فقط إذا الترجمة طويلة
-    max_length = 4000
-
-    if len(translated) <= max_length:
-        update.message.reply_text(translated)
-    else:
-        parts = [
-            translated[i:i + max_length]
-            for i in range(0, len(translated), max_length)
-        ]
-        for part in parts:
-            update.message.reply_text(part)
+    update.message.reply_text(translated)
 
 def start(update, context):
     update.message.reply_text("أرسل لي نصاً بالعربية أو الروسية وسأترجمه بإذن الله.")
@@ -72,8 +60,11 @@ def run_telegram_bot():
     bot_updater.idle()
 
 if __name__ == '__main__':
+    # Run Flask app in a separate thread
     flask_thread = threading.Thread(target=lambda: app.run(host='0.0.0.0', port=5000))
     flask_thread.daemon = True
     flask_thread.start()
     
+    # Run Telegram bot in the main thread
     run_telegram_bot()
+
