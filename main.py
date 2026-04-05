@@ -1,3 +1,4 @@
+```python
 from flask import Flask, render_template
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 import deepl
@@ -38,15 +39,11 @@ def split_text(text, max_length=3000):
     parts = []
     while len(text) > max_length:
         part = text[:max_length]
-
-        # نحاول نقطع عند آخر مسافة
         last_space = part.rfind(" ")
         if last_space != -1:
             part = text[:last_space]
-
         parts.append(part)
         text = text[len(part):]
-
     parts.append(text)
     return parts
 
@@ -68,21 +65,17 @@ def translate(text, target_lang):
 def handle_message(update, context):
     text = update.message.text.strip()
 
-    # 🚫 تجاهل الرسائل الفارغة
     if not text:
         return
 
-    # 🚫 تجاهل الروابط
     if contains_url(text):
         return
 
-    # 🌐 تحديد اللغة
     try:
         lang = detect(text)
     except:
-        return  # بدون رسالة خطأ
+        return
 
-    # 🎯 اختيار اللغة الهدف
     if lang == 'ar':
         target = 'ru'
     elif lang == 'ru':
@@ -91,24 +84,19 @@ def handle_message(update, context):
         update.message.reply_text("أرسل نصًا بالعربية أو الروسية فقط.")
         return
 
-    # ✂️ تقسيم النص الطويل
-    parts = split_text(text)
+    original_parts = split_text(text)
 
-    total_parts = len(parts)
-
-    for i, part in enumerate(parts, start=1):
+    for part in original_parts:
         translated = translate(part, target)
+        translated_parts = split_text(translated)
 
-        # 🧾 ترقيم الأجزاء (اختياري)
-        if total_parts > 1:
-            message = f"({i}/{total_parts})\n{translated}"
-        else:
-            message = translated
-
-        update.message.reply_text(message)
-
-        # ⏳ تجنب Flood
-        time.sleep(0.4)
+        for t_part in translated_parts:
+            context.bot.send_message(
+                chat_id=update.effective_chat.id,
+                text=t_part,
+                reply_to_message_id=update.message.message_id
+            )
+            time.sleep(0.4)
 
 
 # =========================
@@ -117,7 +105,8 @@ def handle_message(update, context):
 def start(update, context):
     update.message.reply_text(
         "أرسل لي نصًا بالعربية أو الروسية وسأترجمه لك.\n"
-        "Пришли мне текст на арабском или русском языке, и я его переведу."
+        "Пришли мне текст на арабском или русском языке, и я его переведу.\n"
+        "https://t.me/Jamaatalmuslimin"
     )
 
 
@@ -144,10 +133,9 @@ def run_telegram_bot():
 # 🚀 التشغيل
 # =========================
 if __name__ == '__main__':
-    # Flask في Thread منفصل
     flask_thread = threading.Thread(target=lambda: app.run(host='0.0.0.0', port=5000))
     flask_thread.daemon = True
     flask_thread.start()
 
-    # Telegram bot
     run_telegram_bot()
+```
