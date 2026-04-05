@@ -1,7 +1,7 @@
 from flask import Flask, render_template
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
-import deepl
 from langdetect import detect
+from googletrans import Translator
 import os
 import threading
 import time
@@ -16,10 +16,9 @@ def home():
 # =========================
 # 🔐 Environment Variables
 # =========================
-DEEPL_AUTH_KEY = os.environ.get('DEEPL_AUTH_KEY')
 TELEGRAM_TOKEN = os.environ.get('TELEGRAM_TOKEN')
 
-translator = deepl.Translator(DEEPL_AUTH_KEY)
+translator = Translator()
 
 
 # =========================
@@ -27,16 +26,16 @@ translator = deepl.Translator(DEEPL_AUTH_KEY)
 # =========================
 def translate(text, target_lang):
     try:
-        result = translator.translate_text(text, target_lang=target_lang.upper())
+        result = translator.translate(text, dest=target_lang)
         return result.text
     except Exception as e:
-        return f"حدث خطأ أثناء الترجمة: {e}"
+        return f"خطأ في الترجمة: {e}"
 
 
 # =========================
-# ✂️ تقسيم الترجمة
+# ✂️ تقسيم النص
 # =========================
-def split_text(text, max_length=4000):
+def split_text(text, max_length=3000):
     return [text[i:i + max_length] for i in range(0, len(text), max_length)]
 
 
@@ -44,10 +43,6 @@ def split_text(text, max_length=4000):
 # 🧠 تجميع الرسائل بدون تكرار
 # =========================
 user_data = {}
-
-def split_text(text, max_length=3000):
-    return [text[i:i + max_length] for i in range(0, len(text), max_length)]
-
 
 def process_user_text(user_id, context, timestamp):
     time.sleep(1.2)
@@ -70,13 +65,13 @@ def process_user_text(user_id, context, timestamp):
         context.bot.send_message(chat_id=user_id, text="أرسل نصًا بالعربية أو الروسية فقط.")
         return
 
-    # 🔥 تقسيم النص قبل الترجمة (حل 413)
+    # تقسيم قبل الترجمة
     text_parts = split_text(text, 3000)
 
     for part in text_parts:
         translated = translate(part, target)
 
-        # تقسيم الترجمة كذلك
+        # تقسيم بعد الترجمة (Telegram limit)
         translated_parts = split_text(translated, 4000)
 
         for t in translated_parts:
