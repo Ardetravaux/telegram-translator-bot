@@ -25,8 +25,22 @@ def translate(text, target_lang):
     except Exception as e:
         return f"حدث خطأ أثناء الترجمة: {e}"
 
+def split_text(text, max_length=3000):
+    parts = []
+    while len(text) > max_length:
+        part = text[:max_length]
+        last_space = part.rfind(" ")
+        if last_space != -1:
+            part = text[:last_space]
+        parts.append(part)
+        text = text[len(part):]
+    parts.append(text)
+    return parts
+
+
 def handle_message(update, context):
     text = update.message.text
+
     try:
         lang = detect(text)
     except:
@@ -41,8 +55,17 @@ def handle_message(update, context):
         update.message.reply_text("أرسل نصًا بالعربية أو الروسية فقط.")
         return
 
-    translated = translate(text, target)
-    update.message.reply_text(translated)
+    # ✂️ تقسيم النص الأصلي
+    parts = split_text(text)
+
+    for part in parts:
+        translated = translate(part, target)
+
+        # ✂️ تقسيم الترجمة
+        translated_parts = split_text(translated)
+
+        for t in translated_parts:
+            update.message.reply_text(t))
 
 def start(update, context):
     update.message.reply_text("أرسل لي نصاً بالعربية أو الروسية وسأترجمه بإذن الله.")
