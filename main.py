@@ -76,6 +76,7 @@ def split_text(text, max_length=2000):
 # 📩 التعامل مع الرسائل
 # =========================
 import time
+import re
 
 def handle_message(update, context):
     if not update.message:
@@ -99,41 +100,34 @@ def handle_message(update, context):
         )
         return
 
-    # ✅ ترجمة
     translated = translate(text, target)
-
-    # ✅ تقسيم
     parts = split_text(translated)
 
-import time
-import re
+    for part in parts:
+        sent = False
 
-for part in parts:
-    sent = False
+        while not sent:
+            try:
+                context.bot.send_message(
+                    chat_id=update.effective_chat.id,
+                    text=part
+                )
+                sent = True
+                time.sleep(1.5)
 
-    while not sent:
-        try:
-            context.bot.send_message(
-                chat_id=update.effective_chat.id,
-                text=part
-            )
-            sent = True
-            time.sleep(1.5)
+            except Exception as e:
+                error_text = str(e)
+                print("ERROR:", error_text)
 
-        except Exception as e:
-            error_text = str(e)
-            print("ERROR:", error_text)
+                match = re.search(r"Retry in (\d+)", error_text)
 
-            # 🔥 إذا كان flood control
-            match = re.search(r"Retry in (\d+)", error_text)
-
-            if match:
-                wait_time = int(match.group(1))
-                print(f"Waiting {wait_time} seconds...")
-                time.sleep(wait_time)
-            else:
-                time.sleep(5)
-
+                if match:
+                    wait_time = int(match.group(1))
+                    print(f"Waiting {wait_time} seconds...")
+                    time.sleep(wait_time)
+                else:
+                    time.sleep(5)
+                    
 # =========================
 # ▶️ /start
 # =========================
