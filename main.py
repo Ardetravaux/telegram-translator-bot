@@ -35,7 +35,33 @@ def translate(text, target_lang):
 # ✂️ تقسيم الترجمة فقط
 # =========================
 def split_text(text, max_length=3500):
-    return [text[i:i + max_length] for i in range(0, len(text), max_length)]
+    if len(text) <= max_length:
+        return [text]
+
+    parts = []
+    total_len = len(text)
+
+    # نحسب عدد الأجزاء المطلوبة
+    num_parts = (total_len // max_length) + 1
+    part_len = total_len // num_parts
+
+    start = 0
+    for i in range(num_parts):
+        end = start + part_len
+
+        # نحاول نقطع عند أقرب مسافة
+        if end < total_len:
+            space = text.rfind(" ", start, end)
+            if space != -1:
+                end = space
+
+        parts.append(text[start:end].strip())
+        start = end
+
+    if start < total_len:
+        parts.append(text[start:].strip())
+
+    return parts
 
 
 # =========================
