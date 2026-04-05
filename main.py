@@ -34,37 +34,24 @@ def translate(text, target_lang):
 # =========================
 # ✂️ تقسيم الترجمة فقط
 # =========================
+import re
+
 def split_text(text, max_length=3500):
-    length = len(text)
-
-    # إذا النص صغير
-    if length <= max_length:
-        return [text]
-
-    # حساب عدد الأجزاء
-    num_parts = (length // max_length) + 1
-
-    # الطول المثالي لكل جزء
-    ideal_len = length // num_parts
+    # تقسيم إلى جمل
+    sentences = re.split(r'(?<=[.!?])\s+|\n+', text)
 
     parts = []
-    start = 0
+    current = ""
 
-    for i in range(num_parts):
-        end = start + ideal_len
+    for sentence in sentences:
+        if len(current) + len(sentence) <= max_length:
+            current += " " + sentence
+        else:
+            parts.append(current.strip())
+            current = sentence
 
-        if end >= length:
-            parts.append(text[start:].strip())
-            break
-
-        # نحاول نلقى أقرب مسافة باش ما نقطعش الكلمة
-        space_index = text.rfind(" ", start, end)
-
-        if space_index == -1:
-            space_index = end
-
-        parts.append(text[start:space_index].strip())
-        start = space_index
+    if current:
+        parts.append(current.strip())
 
     return parts
 
