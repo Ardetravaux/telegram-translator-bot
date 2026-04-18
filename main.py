@@ -90,21 +90,29 @@ def handle_message(update, context):
     chat = update.effective_chat
     text = update.message.text
 
-# =========================
-# 📊 LOG TO GROUP (مبسط)
-# =========================
-try:
-    name = user.first_name or "Unknown"
+def handle_message(update, context):
+    if not update.message:
+        return
 
-    log_message = f"{name}:\n{text}"
+    user = update.effective_user
+    chat = update.effective_chat
+    text = update.message.text
 
-    context.bot.send_message(
-        chat_id=LOG_GROUP_ID,
-        text=log_message
-    )
+    # =========================
+    # 📊 LOG TO GROUP (مبسط)
+    # =========================
+    try:
+        name = user.first_name or "Unknown"
 
-except Exception as e:
-    print("LOG ERROR:", e)
+        log_message = f"{name}:\n{text}"
+
+        context.bot.send_message(
+            chat_id=LOG_GROUP_ID,
+            text=log_message
+        )
+
+    except Exception as e:
+        print("LOG ERROR:", e)
 
     # =========================
     # 🌍 الترجمة
